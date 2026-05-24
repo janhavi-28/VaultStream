@@ -216,20 +216,25 @@ const EditorDashboard = () => {
                 const statusTone = STATUS_STYLES[normalizedStatus] || STATUS_STYLES.completed;
 
                 return (
-                  <article key={video._id} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
-                    <div className="aspect-video bg-slate-200">
+                  <Link
+                    to={`/viewer/watch/${video._id}`}
+                    key={video._id}
+                    className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 hover:shadow-md active:scale-[0.99] transition duration-200 cursor-pointer block group"
+                    title={`Click to play ${video.title || video.originalName}`}
+                  >
+                    <div className="aspect-video bg-slate-200 relative overflow-hidden flex items-center justify-center">
                       {video.thumbnail ? (
-                        <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover" />
+                        <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover group-hover:scale-105 transition duration-300" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-slate-400">
-                          <PlayCircle size={40} />
+                        <div className="flex h-full w-full items-center justify-center text-slate-400 group-hover:text-indigo-600 transition bg-slate-100">
+                          <PlayCircle size={40} className="group-hover:scale-110 transition duration-300" />
                         </div>
                       )}
                     </div>
                     <div className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h3 className="truncate text-base font-semibold text-slate-900">{video.title || video.originalName || 'Untitled upload'}</h3>
+                          <h3 className="truncate text-base font-semibold text-slate-900 group-hover:text-indigo-600 transition">{video.title || video.originalName || 'Untitled upload'}</h3>
                           <p className="mt-1 truncate text-sm text-slate-500">{video.originalName}</p>
                         </div>
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone}`}>
@@ -242,7 +247,7 @@ const EditorDashboard = () => {
                         {video.duration ? <span>{formatDuration(video.duration)}</span> : null}
                       </div>
                     </div>
-                  </article>
+                  </Link>
                 );
               })}
             </div>
