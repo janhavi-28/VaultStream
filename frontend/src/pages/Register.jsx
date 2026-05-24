@@ -15,27 +15,13 @@ const Register = () => {
     role: 'viewer',
     tenantId: '',
   });
-  const [organizations, setOrganizations] = useState([]);
-  const [loadingOrgs, setLoadingOrgs] = useState(true);
+  const [organizations] = useState([
+    { _id: '6a1319a280b95cf6c3fec390', name: 'Northstar Media' },
+    { _id: '6a1319a280b95cf6c3fec391', name: 'Acme Corp' },
+    { _id: '6a1319a280b95cf6c3fec392', name: 'Blue Studios' },
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchOrgs = async () => {
-      try {
-        setLoadingOrgs(true);
-        const { data } = await api.get('/tenants');
-        if (data.success) {
-          setOrganizations(data.tenants);
-        }
-      } catch (err) {
-        console.error('Failed to fetch public organizations:', err);
-      } finally {
-        setLoadingOrgs(false);
-      }
-    };
-    fetchOrgs();
-  }, []);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
