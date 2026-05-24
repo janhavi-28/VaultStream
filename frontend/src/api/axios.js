@@ -1,12 +1,26 @@
 import axios from 'axios';
 
 // ─────────────────────────────────────────────
+// Resolve the API base URL
+// ─────────────────────────────────────────────
+// Priority:
+//   1. VITE_API_URL env var (explicit override)
+//   2. Vercel production  → same-domain relative path /_/backend/api
+//   3. Local dev fallback → http://localhost:5000/api
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  // On Vercel both services share the same domain — use relative path
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+    return '/_/backend/api';
+  }
+  return 'http://localhost:5000/api';
+};
+
+// ─────────────────────────────────────────────
 // Create centralized Axios instance
 // ─────────────────────────────────────────────
 const api = axios.create({
-  // Use Vite environment variables for the base URL
-  // Falls back to localhost for local development if not set
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },

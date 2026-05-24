@@ -17,16 +17,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
-// Allow requests from the frontend. In production, set CLIENT_URL in env vars.
-// e.g. CLIENT_URL=https://vaultstream.vercel.app
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map((o) => o.trim())
-  : ['http://localhost:5173', 'http://localhost:3000'];
+// On Vercel experimental services, frontend & backend share the same domain.
+// Same-origin requests have no Origin header → always allowed.
+// VERCEL_URL is auto-set by Vercel (e.g. vaultstream.vercel.app).
+const buildAllowedOrigins = () => {
+  const origins = ['http://localhost:5173', 'http://localhost:3000'];
+
+  if (process.env.CLIENT_URL) {
+    process.env.CLIENT_URL.split(',').forEach((o) => origins.push(o.trim()));
+  }
+  if (process.env.VERCEL_URL) {
+    origins.push(`https://${process.env.VERCEL_URL}`);
+  }
+  return origins;
+};
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, curl)
-    if (!origin || allowedOrigins.includes(origin)) {
+    const allowed = buildAllowedOrigins();
+    // Allow requests with no origin (same-domain on Vercel, Postman, curl)
+    if (!origin || allowed.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error(`CORS: origin ${origin} not allowed`));

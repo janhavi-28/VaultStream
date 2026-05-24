@@ -32,11 +32,26 @@ export const SocketProvider = ({ children }) => {
 
   // Initialize socket connection
   useEffect(() => {
-    // Strip /api suffix if present — socket connects to the base server URL, not the REST API path
-    const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    const backendUrl = rawUrl.replace(/\/api\/?$/, '');
+    // Determine socket server URL:
+    //  - Vercel (prod, same domain): connect to origin with path /_/backend
+    //  - Dev: strip /api from VITE_API_URL to get base URL
+    const isLocalhost = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+    let backendUrl, socketPath;
+
+    if (!isLocalhost && !import.meta.env.VITE_SOCKET_URL) {
+      // Vercel experimental services — backend is at /_/backend on same domain
+      backendUrl = window.location.origin;
+      socketPath = '/_/backend/socket.io';
+    } else {
+      const rawUrl = import.meta.env.VITE_SOCKET_URL
+        || import.meta.env.VITE_API_URL
+        || 'http://localhost:5000';
+      backendUrl = rawUrl.replace(/\/api\/?$/, '');
+      socketPath = '/socket.io';
+    }
 
     const newSocket = io(backendUrl, {
+      path: socketPath,
       autoConnect: true,
       reconnection: true,
     });
