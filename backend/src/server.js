@@ -15,15 +15,8 @@ const PORT = process.env.PORT || 5000;
 // Create HTTP server
 const server = http.createServer(app);
 
-// When deployed on Vercel with experimentalServices, the backend is mounted at
-// /_/backend — so socket.io must also listen on that sub-path.
-// VERCEL_URL is automatically set by Vercel in the environment.
-const isVercel = !!process.env.VERCEL_URL || process.env.NODE_ENV === 'production';
-const socketPath = isVercel ? '/_/backend/socket.io' : '/socket.io';
-
 // Initialize Socket.io
 const io = new Server(server, {
-  path: socketPath,
   cors: {
     origin: process.env.CLIENT_URL || '*',
     methods: ['GET', 'POST'],

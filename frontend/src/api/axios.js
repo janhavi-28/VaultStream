@@ -5,13 +5,12 @@ import axios from 'axios';
 // ─────────────────────────────────────────────
 // Priority:
 //   1. VITE_API_URL env var (explicit override)
-//   2. Vercel production  → same-domain relative path /_/backend/api
-//   3. Local dev fallback → http://localhost:5000/api
+//   2. Production (Vercel) → same-domain /api
+//   3. Local dev fallback  → http://localhost:5000/api
 const getBaseURL = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-  // On Vercel both services share the same domain — use relative path
   if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-    return '/_/backend/api';
+    return '/api';
   }
   return 'http://localhost:5000/api';
 };
