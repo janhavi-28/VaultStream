@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -9,11 +9,9 @@ import {
   FolderKanban,
   Home,
   PlayCircle,
-  RefreshCw,
   UploadCloud,
   Video,
 } from 'lucide-react';
-import { useSocket } from '../../context/SocketContext';
 import { useTenant } from '../../context/TenantContext';
 import { formatBytes, formatDuration } from '../../hooks/useVideoValidation';
 
@@ -110,34 +108,6 @@ const EditorDashboard = () => {
     fetchDashboardData();
   }, [currentTenant]);
 
-  const attentionItems = useMemo(() => {
-    // We could fetch real queue errors here if needed, but for now we'll use recent videos that failed
-    const failedProcessing = recentVideos
-      .filter((video) => video.status === 'failed')
-      .map((video) => ({
-        id: `failed-${video._id}`,
-        title: video.title || video.originalName,
-        detail: 'Processing needs another pass.',
-        kind: 'failed',
-        actionLabel: 'Retry',
-        onAction: () => console.log('Retry', video._id), // Placeholder for retry
-      }));
-
-    const metadataGaps = recentVideos
-      .filter((video) => !video.title || video.title.trim().length < 3)
-      .map((video) => ({
-        id: `metadata-${video._id}`,
-        title: video.originalName || 'Untitled upload',
-        detail: 'This upload still needs a stronger title before publishing.',
-        kind: 'warning',
-        actionHref: '/editor/library',
-        actionLabel: 'Open library',
-      }));
-
-    return [...failedProcessing, ...metadataGaps].slice(0, 4);
-  }, [recentVideos]);
-
-  const featuredVideo = recentVideos[0];
 
   return (
     <div className="space-y-6">
@@ -208,201 +178,89 @@ const EditorDashboard = () => {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-950">Recent uploads</h2>
-                <p className="mt-1 text-sm text-slate-500">Your latest assets with status, size, and quick visibility into readiness.</p>
+      <section className="w-full">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-950">Recent uploads</h2>
+              <p className="mt-1 text-sm text-slate-500">Your latest assets with status, size, and quick visibility into readiness.</p>
+            </div>
+            <Link to="/editor/library" className="inline-flex items-center gap-2 text-sm font-medium text-sky-700 hover:text-sky-800">
+              View all
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 animate-pulse">
+                  <div className="aspect-video bg-slate-200"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                    <div className="h-2 bg-slate-200 rounded w-full mt-4"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="mt-5 rounded-3xl border border-rose-200 bg-rose-50 px-6 py-10 text-center text-rose-600">
+              <AlertTriangle size={24} className="mx-auto mb-2" />
+              {error}
+            </div>
+          ) : recentVideos.length ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {recentVideos.map((video) => {
+                const normalizedStatus = (video.status || 'completed').toLowerCase();
+                const statusTone = STATUS_STYLES[normalizedStatus] || STATUS_STYLES.completed;
+
+                return (
+                  <article key={video._id} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
+                    <div className="aspect-video bg-slate-200">
+                      {video.thumbnail ? (
+                        <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-slate-400">
+                          <PlayCircle size={40} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="truncate text-base font-semibold text-slate-900">{video.title || video.originalName || 'Untitled upload'}</h3>
+                          <p className="mt-1 truncate text-sm text-slate-500">{video.originalName}</p>
+                        </div>
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone}`}>
+                          {video.status || 'Completed'}
+                        </span>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-500">
+                        <span>{formatBytes(video.size || 0)}</span>
+                        <span>{formatDate(video.createdAt)}</span>
+                        {video.duration ? <span>{formatDuration(video.duration)}</span> : null}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-sky-600 shadow-sm ring-1 ring-slate-200">
+                <UploadCloud size={24} />
               </div>
-              <Link to="/editor/library" className="inline-flex items-center gap-2 text-sm font-medium text-sky-700 hover:text-sky-800">
-                View all
-                <ArrowRight size={16} />
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">No uploads yet</h3>
+              <p className="mt-2 text-sm text-slate-500">Start with the new queue uploader and your recent videos will appear here automatically.</p>
+              <Link
+                to="/editor/upload"
+                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
+              >
+                Upload first video
               </Link>
             </div>
-
-            {loading ? (
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                {[1, 2, 3, 4].map((n) => (
-                  <div key={n} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 animate-pulse">
-                    <div className="aspect-video bg-slate-200"></div>
-                    <div className="p-4 space-y-3">
-                      <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                      <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-                      <div className="h-2 bg-slate-200 rounded w-full mt-4"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : error ? (
-              <div className="mt-5 rounded-3xl border border-rose-200 bg-rose-50 px-6 py-10 text-center text-rose-600">
-                <AlertTriangle size={24} className="mx-auto mb-2" />
-                {error}
-              </div>
-            ) : recentVideos.length ? (
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                {recentVideos.map((video) => {
-                  const normalizedStatus = (video.status || 'completed').toLowerCase();
-                  const statusTone = STATUS_STYLES[normalizedStatus] || STATUS_STYLES.completed;
-
-                  return (
-                    <article key={video._id} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
-                      <div className="aspect-video bg-slate-200">
-                        {video.thumbnail ? (
-                          <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-slate-400">
-                            <PlayCircle size={40} />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <h3 className="truncate text-base font-semibold text-slate-900">{video.title || video.originalName || 'Untitled upload'}</h3>
-                            <p className="mt-1 truncate text-sm text-slate-500">{video.originalName}</p>
-                          </div>
-                          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone}`}>
-                            {video.status || 'Completed'}
-                          </span>
-                        </div>
-                        <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-500">
-                          <span>{formatBytes(video.size || 0)}</span>
-                          <span>{formatDate(video.createdAt)}</span>
-                          {video.duration ? <span>{formatDuration(video.duration)}</span> : null}
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="mt-5 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-sky-600 shadow-sm ring-1 ring-slate-200">
-                  <UploadCloud size={24} />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">No uploads yet</h3>
-                <p className="mt-2 text-sm text-slate-500">Start with the new queue uploader and your recent videos will appear here automatically.</p>
-                <Link
-                  to="/editor/upload"
-                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
-                >
-                  Upload first video
-                </Link>
-              </div>
-            )}
-          </div>
-
-
-        </div>
-
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-950">Live pipeline</h2>
-                <p className="mt-1 text-sm text-slate-500">A compact view of videos currently moving through processing.</p>
-              </div>
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                {stats.activePipeline} active
-              </span>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              {loading ? (
-                 <div className="animate-pulse space-y-4">
-                    <div className="h-16 bg-slate-50 rounded-2xl border border-slate-200"></div>
-                    <div className="h-16 bg-slate-50 rounded-2xl border border-slate-200"></div>
-                 </div>
-              ) : recentVideos.filter(v => ['uploading', 'processing'].includes(v.status)).length ? (
-                recentVideos.filter(v => ['uploading', 'processing'].includes(v.status)).slice(0, 4).map((item) => (
-                  <div key={item._id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <h3 className="truncate font-semibold text-slate-900">{item.title}</h3>
-                        <p className="mt-1 text-sm text-slate-500 capitalize">
-                          {item.status}
-                        </p>
-                      </div>
-                      <span className="text-sm font-semibold text-slate-700">In Progress</span>
-                    </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-                      <div className="h-full rounded-full bg-sky-500 w-1/2 animate-pulse" />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
-                  No pipeline jobs are active right now.
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-950">Needs attention</h2>
-            <p className="mt-1 text-sm text-slate-500">Surface issues that could block publishing or require another pass.</p>
-
-            <div className="mt-5 space-y-4">
-              {attentionItems.length ? (
-                attentionItems.map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className={`mt-0.5 rounded-full p-2 ${item.kind === 'failed' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
-                        <AlertTriangle size={16} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-slate-900">{item.title}</h3>
-                        <p className="mt-1 text-sm text-slate-500">{item.detail}</p>
-                        {item.onAction ? (
-                          <button
-                            type="button"
-                            onClick={item.onAction}
-                            className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-rose-700 hover:text-rose-800"
-                          >
-                            <RefreshCw size={14} />
-                            {item.actionLabel}
-                          </button>
-                        ) : null}
-                        {item.actionHref ? (
-                          <Link to={item.actionHref} className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-amber-700 hover:text-amber-800">
-                            {item.actionLabel}
-                            <ArrowRight size={14} />
-                          </Link>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
-                  Everything looks healthy. No failed processing jobs or metadata gaps were detected.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {featuredVideo ? (
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-              <div className="aspect-video bg-slate-200">
-                {featuredVideo.thumbnail ? (
-                  <img src={featuredVideo.thumbnail} alt={featuredVideo.title} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-slate-400">
-                    <PlayCircle size={42} />
-                  </div>
-                )}
-              </div>
-              <div className="p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Latest delivery</p>
-                <h2 className="mt-3 text-xl font-bold text-slate-950">{featuredVideo.title || featuredVideo.originalName || 'Untitled upload'}</h2>
-                <p className="mt-2 text-sm text-slate-500">
-                  Added {formatDate(featuredVideo.createdAt)} with {formatBytes(featuredVideo.size || 0)} ready for your library workflow.
-                </p>
-              </div>
-            </div>
-          ) : null}
+          )}
         </div>
       </section>
     </div>
