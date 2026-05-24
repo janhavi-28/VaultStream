@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env*.local
+logs/
+*.log
+src/temp/*
+!src/temp/.gitkeep
+src/uploads/videos/*
+!src/uploads/videos/.gitkeep
+src/uploads/frames/*
+!src/uploads/frames/.gitkeep

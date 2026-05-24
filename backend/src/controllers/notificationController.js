@@ -1,0 +1,54 @@
+import Notification from '../models/Notification.js';
+
+// @desc    Get user notifications
+// @route   GET /api/notifications
+// @access  Private
+export const getNotifications = async (req, res, next) => {
+  try {
+    const notifications = await Notification.find({ userId: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    res.status(200).json({
+      success: true,
+      notifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Mark notifications as read
+// @route   PUT /api/notifications/read
+// @access  Private
+export const markAsRead = async (req, res, next) => {
+  try {
+    await Notification.updateMany(
+      { userId: req.user._id, read: false },
+      { $set: { read: true } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Notifications marked as read',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Clear/Delete all notifications
+// @route   DELETE /api/notifications
+// @access  Private
+export const clearNotifications = async (req, res, next) => {
+  try {
+    await Notification.deleteMany({ userId: req.user._id });
+
+    res.status(200).json({
+      success: true,
+      message: 'Notifications cleared',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
