@@ -5,10 +5,12 @@ import streamRoutes from './streamRoutes.js';
 import dashboardRoutes from './dashboardRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
 import adminRoutes from './adminRoutes.js';
+import { getPublicTenants } from '../controllers/authController.js';
 
 const router = express.Router();
 
 // Mount routes
+router.get('/tenants', getPublicTenants);
 router.use('/auth', authRoutes);
 router.use('/videos', videoRoutes);
 router.use('/videos/stream', streamRoutes);

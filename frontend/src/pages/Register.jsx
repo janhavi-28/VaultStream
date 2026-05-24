@@ -24,7 +24,7 @@ const Register = () => {
     const fetchOrgs = async () => {
       try {
         setLoadingOrgs(true);
-        const { data } = await api.get('/auth/tenants');
+        const { data } = await api.get('/tenants');
         if (data.success) {
           setOrganizations(data.tenants);
         }
