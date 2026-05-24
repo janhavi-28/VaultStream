@@ -14,14 +14,11 @@ const connectDB = async () => {
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
     
-    // In production, you might not want to exit the entire process immediately 
-    // on a DB connection drop, but for initial connection failure, it's standard.
-    if (process.env.NODE_ENV === 'production') {
-      console.error('Critical Error: Failed to connect to database in production environment.');
+    // Do NOT exit the process on Vercel/serverless environments, so that Mongoose connection
+    // errors can bubble up to Express and be returned as JSON to the client.
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      process.exit(1);
     }
-    
-    // Exit process with failure
-    process.exit(1);
   }
 };
 
