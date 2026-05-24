@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 const WatchVideo = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, role } = useAuth();
   const [video, setVideo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,7 +54,7 @@ const WatchVideo = () => {
       <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center bg-slate-50">
         <h2 className="mb-2 text-2xl font-bold text-gray-900">Oops!</h2>
         <p className="mb-6 text-gray-500">{error || 'Video not found.'}</p>
-        <button onClick={() => navigate('/viewer/dashboard')} className="rounded-xl bg-indigo-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-indigo-700">
+        <button onClick={() => navigate(role === 'editor' ? '/editor/dashboard' : role === 'admin' ? '/admin/dashboard' : '/viewer/dashboard')} className="rounded-xl bg-indigo-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-indigo-700">
           Back to Dashboard
         </button>
       </div>
@@ -68,7 +68,7 @@ const WatchVideo = () => {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="mb-6 max-w-5xl mx-auto">
-        <BackButton to={isAuthenticated ? "/viewer/dashboard" : "/browse"} label={isAuthenticated ? "Back to Dashboard" : "Back to Browse"} />
+        <BackButton to={!isAuthenticated ? "/browse" : role === 'editor' ? "/editor/dashboard" : role === 'admin' ? "/admin/dashboard" : "/viewer/dashboard"} label={isAuthenticated ? "Back to Dashboard" : "Back to Browse"} />
       </div>
 
       <div className="mx-auto max-w-5xl">

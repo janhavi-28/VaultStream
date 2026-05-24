@@ -59,14 +59,16 @@ const AnimatedRoutes = ({ isAuthenticated, role, getDashboardPath }) => {
         <Route path="/watch/:id" element={<WatchVideo />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route element={<RoleGuard allowedRoles={['viewer', 'admin']} />}>
-            <Route path="/viewer" element={<ViewerLayout />}>
+          <Route path="/viewer" element={<ViewerLayout />}>
+            <Route element={<RoleGuard allowedRoles={['viewer', 'admin']} />}>
               <Route path="dashboard" element={<ViewerDashboard />} />
               <Route path="videos" element={<MyVideos />} />
-              <Route path="watch" element={<WatchVideo />} />
-              <Route path="watch/:id" element={<WatchVideo />} />
               <Route path="settings" element={<SystemSettings />} />
               <Route path="help" element={<ViewerHelp />} />
+            </Route>
+            <Route element={<RoleGuard allowedRoles={['viewer', 'editor', 'admin']} />}>
+              <Route path="watch" element={<WatchVideo />} />
+              <Route path="watch/:id" element={<WatchVideo />} />
             </Route>
           </Route>
 
