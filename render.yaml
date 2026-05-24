@@ -1,0 +1,36 @@
+services:
+  # ─── VaultStream Backend ────────────────────────────────────────────────────
+  - type: web
+    name: vaultstream-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+    # Persistent disk for video uploads (free tier: 1 GB)
+    disk:
+      name: uploads-disk
+      mountPath: /opt/render/project/src/backend/src/uploads
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # ↓ Set these manually in the Render Dashboard (sensitive values)
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CLIENT_URL
+        sync: false   # Set this to your Vercel frontend URL after deploying
