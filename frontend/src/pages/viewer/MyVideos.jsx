@@ -25,41 +25,39 @@ const formatDuration = (seconds) => {
   return `${m}:${String(s).padStart(2, '0')}`;
 };
 
-const VideoRow = memo(({ video, onOpen }) => (
-  <button
-    type="button"
-    onClick={() => onOpen(video._id)}
-    className="group flex w-full items-center gap-4 rounded-xl border border-gray-200 bg-white p-3 text-left shadow-sm transition-all hover:border-indigo-200 hover:shadow-md"
-  >
-    <div className="relative h-20 w-36 overflow-hidden rounded-lg bg-gray-100 shrink-0">
-      {video.thumbnailPath ? (
+const VideoRow = memo(({ video, onOpen }) => {
+  const posterSrc = video.thumbnail || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2825&auto=format&fit=crop';
+
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(video._id)}
+      className="group flex w-full items-center gap-4 rounded-xl border border-gray-200 bg-white p-3 text-left shadow-sm transition-all hover:border-indigo-200 hover:shadow-md"
+    >
+      <div className="relative h-20 w-36 overflow-hidden rounded-lg bg-gray-100 shrink-0">
         <img
-          src={`http://localhost:5000/${video.thumbnailPath}`}
+          src={posterSrc}
           alt={video.title}
           loading="lazy"
           decoding="async"
           className="h-full w-full object-cover opacity-90 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
         />
-      ) : (
-        <div className="h-full w-full flex items-center justify-center bg-gray-200">
-          <VideoOff size={24} className="text-gray-400" />
-        </div>
-      )}
-      {video.duration && (
-        <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
-          {formatDuration(video.duration)}
-        </span>
-      )}
-    </div>
-    <div className="min-w-0 flex-1">
-      <h3 className="truncate font-semibold text-gray-900 group-hover:text-indigo-600">{video.title}</h3>
-      {video.description && <p className="mt-0.5 text-xs text-gray-400 truncate">{video.description}</p>}
-      <p className="mt-1 text-xs text-gray-500">Added {new Date(video.createdAt).toLocaleDateString()}</p>
-    </div>
-    <StatusBadge status={video.status} />
-    <div className="rounded-full bg-indigo-100 p-2 text-indigo-700 shrink-0"><Play size={16} className="fill-current" /></div>
-  </button>
-));
+        {video.duration && (
+          <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
+            {formatDuration(video.duration)}
+          </span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate font-semibold text-gray-900 group-hover:text-indigo-600">{video.title}</h3>
+        {video.description && <p className="mt-0.5 text-xs text-gray-400 truncate">{video.description}</p>}
+        <p className="mt-1 text-xs text-gray-500">Added {new Date(video.createdAt).toLocaleDateString()}</p>
+      </div>
+      <StatusBadge status={video.status} />
+      <div className="rounded-full bg-indigo-100 p-2 text-indigo-700 shrink-0"><Play size={16} className="fill-current" /></div>
+    </button>
+  );
+});
 
 const FILTERS = ['All', 'Safe', 'Processing', 'Flagged'];
 
