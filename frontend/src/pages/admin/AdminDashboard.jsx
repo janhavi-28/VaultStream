@@ -32,7 +32,13 @@ const ActivityItem = ({ video, onDelete }) => {
           <Film size={15} className="text-indigo-600" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-slate-900 truncate">{video.title}</p>
+          <Link
+            to={`/viewer/watch/${video._id}`}
+            className="text-sm font-medium text-slate-900 truncate hover:text-indigo-600 cursor-pointer block hover:underline"
+            title="Click to play video"
+          >
+            {video.title}
+          </Link>
           <p className="text-xs text-slate-500 mt-0.5">
             by <span className="font-medium text-slate-700">{video.uploadedBy?.name || 'Unknown'}</span>
             {video.uploadedBy?.email && ` · ${video.uploadedBy.email}`}
@@ -47,14 +53,23 @@ const ActivityItem = ({ video, onDelete }) => {
           </div>
         </div>
       </div>
-      <button
-        type="button"
-        onClick={() => onDelete(video._id, video.title)}
-        className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-rose-700 hover:bg-rose-50 active:scale-95 transition"
-        title="Delete video"
-      >
-        <Trash2 size={13} />
-      </button>
+      <div className="inline-flex gap-1.5 shrink-0">
+        <Link
+          to={`/viewer/watch/${video._id}`}
+          className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-indigo-700 hover:bg-indigo-50 active:scale-95 transition flex items-center justify-center"
+          title="Play video"
+        >
+          <PlayCircle size={13} />
+        </Link>
+        <button
+          type="button"
+          onClick={() => onDelete(video._id, video.title)}
+          className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-rose-700 hover:bg-rose-50 active:scale-95 transition flex items-center justify-center"
+          title="Delete video"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
     </div>
   );
 };
@@ -200,10 +215,17 @@ const AdminDashboard = () => {
               rows={moderationRows}
               actions={(row) => (
                 <div className="inline-flex gap-2">
+                  <Link
+                    to={`/viewer/watch/${row.id}`}
+                    className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-indigo-700 hover:bg-indigo-50 active:scale-95 flex items-center justify-center"
+                    title="Watch video"
+                  >
+                    <PlayCircle size={14} />
+                  </Link>
                   <button
                     type="button"
                     onClick={() => handleApprove(row.id, row.title)}
-                    className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-emerald-700 hover:bg-emerald-50 active:scale-95"
+                    className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-emerald-700 hover:bg-emerald-50 active:scale-95 flex items-center justify-center"
                     title="Approve — mark Safe"
                   >
                     <CheckCircle size={14} />
@@ -211,7 +233,7 @@ const AdminDashboard = () => {
                   <button
                     type="button"
                     onClick={() => handleDelete(row.id, row.title)}
-                    className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-rose-700 hover:bg-rose-50 active:scale-95"
+                    className="cursor-pointer rounded-lg border border-slate-200 p-1.5 text-rose-700 hover:bg-rose-50 active:scale-95 flex items-center justify-center"
                     title="Delete permanently"
                   >
                     <Trash2 size={14} />

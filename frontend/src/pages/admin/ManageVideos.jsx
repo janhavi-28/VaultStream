@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Edit3, Trash2, X, Check, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Edit3, Trash2, X, Check, Filter, PlayCircle } from 'lucide-react';
 import AdminShell from '../../components/admin/AdminShell';
 import AdminTable from '../../components/admin/AdminTable';
 import api from '../../api/axios';
@@ -97,7 +98,15 @@ const ManageVideos = () => {
         </div>
       );
     }
-    return <span className="font-medium text-slate-900">{video.title}</span>;
+    return (
+      <Link
+        to={`/viewer/watch/${video._id}`}
+        className="font-medium text-slate-900 hover:text-indigo-600 cursor-pointer hover:underline transition"
+        title="Click to play video"
+      >
+        {video.title}
+      </Link>
+    );
   };
 
   // Apply filter
@@ -175,10 +184,17 @@ const ManageVideos = () => {
           rows={tableRows}
           actions={(row) => (
             <div className="inline-flex gap-2">
+              <Link
+                to={`/viewer/watch/${row.id}`}
+                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-indigo-700 hover:bg-indigo-50 active:scale-95 flex items-center justify-center animate-transition"
+                title="Watch video"
+              >
+                <PlayCircle size={15} />
+              </Link>
               <button
                 type="button"
                 onClick={() => handleEditClick(row._original)}
-                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 active:scale-95"
+                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 active:scale-95 flex items-center justify-center"
                 title="Edit video"
               >
                 <Edit3 size={15} />
@@ -186,7 +202,7 @@ const ManageVideos = () => {
               <button
                 type="button"
                 onClick={() => deleteVideo(row.id)}
-                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-rose-700 hover:bg-rose-50 active:scale-95"
+                className="cursor-pointer rounded-lg border border-slate-200 p-2 text-rose-700 hover:bg-rose-50 active:scale-95 flex items-center justify-center"
                 title="Delete video"
               >
                 <Trash2 size={15} />

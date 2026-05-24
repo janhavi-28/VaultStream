@@ -294,31 +294,7 @@ const EditorDashboard = () => {
             )}
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-950">Quick actions</h2>
-                <p className="mt-1 text-sm text-slate-500">Common next steps for managing the editor workflow.</p>
-              </div>
-            </div>
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
-              <Link to="/editor/upload" className="rounded-3xl border border-slate-200 bg-slate-50 p-5 transition hover:border-sky-200 hover:bg-sky-50">
-                <UploadCloud size={22} className="text-sky-700" />
-                <h3 className="mt-4 text-base font-semibold text-slate-900">Start a new upload</h3>
-                <p className="mt-2 text-sm text-slate-500">Drop one or many files into the queue-based uploader.</p>
-              </Link>
-              <Link to="/editor/library" className="rounded-3xl border border-slate-200 bg-slate-50 p-5 transition hover:border-emerald-200 hover:bg-emerald-50">
-                <FolderKanban size={22} className="text-emerald-700" />
-                <h3 className="mt-4 text-base font-semibold text-slate-900">Manage your library</h3>
-                <p className="mt-2 text-sm text-slate-500">Review thumbnails, open assets, and check processed videos.</p>
-              </Link>
-              <Link to="/admin/processing" className="rounded-3xl border border-slate-200 bg-slate-50 p-5 transition hover:border-amber-200 hover:bg-amber-50">
-                <RefreshCw size={22} className="text-amber-700" />
-                <h3 className="mt-4 text-base font-semibold text-slate-900">Inspect the pipeline</h3>
-                <p className="mt-2 text-sm text-slate-500">Open the deeper processing dashboard for stage-by-stage diagnostics.</p>
-              </Link>
-            </div>
-          </div>
+
         </div>
 
         <div className="space-y-6">
