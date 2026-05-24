@@ -31,7 +31,7 @@ app.set('io', io);
 // Start server
 server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  console.log(`Socket.io path: ${socketPath}`);
+  console.log(`Socket.io path: initialized`);
 });
 
 // Handle unhandled promise rejections

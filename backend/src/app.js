@@ -48,7 +48,7 @@ const corsOptions = {
 // Security and utility middleware
 app.use(helmet({ crossOriginResourcePolicy: false })); // allow media loading
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // pre-flight for all routes
+app.options(/(.*)/, cors(corsOptions)); // pre-flight for all routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
