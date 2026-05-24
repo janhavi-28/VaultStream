@@ -35,8 +35,13 @@ const buildAllowedOrigins = () => {
 const corsOptions = {
   origin: (origin, callback) => {
     const allowed = buildAllowedOrigins();
-    // Allow requests with no origin (same-domain on Vercel, Postman, curl)
-    if (!origin || allowed.includes(origin)) {
+    // Allow requests with no origin, or if origin is in allowed list, or if it is a Vercel domain (*.vercel.app)
+    if (
+      !origin || 
+      allowed.includes(origin) || 
+      origin.endsWith('.vercel.app') ||
+      (typeof origin === 'string' && origin.includes('.vercel.app'))
+    ) {
       callback(null, true);
     } else {
       callback(new Error(`CORS: origin ${origin} not allowed`));
