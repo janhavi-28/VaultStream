@@ -34,7 +34,9 @@ export const resolveTenant = (req, res, next) => {
 export const buildTenantFilter = (req, extraFilters = {}) => {
   const filter = { ...extraFilters };
 
-  if (req.user && req.user.role === 'editor') {
+  if (req.user && req.user.role === 'admin') {
+    // Admin: allowed to see all videos across the entire platform
+  } else if (req.user && req.user.role === 'editor') {
     // Editor role strictly only sees/manages their own uploaded videos
     filter.uploadedBy = req.user._id;
   } else if (req.tenantId) {
