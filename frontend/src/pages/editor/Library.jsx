@@ -11,6 +11,7 @@ import FilterChip from '../../components/filters/FilterChip';
 import PaginationControls from '../../components/filters/PaginationControls';
 import EmptyState from '../../components/feedback/EmptyState';
 import { useNotifications } from '../../context/NotificationContext';
+import VideoPlayer from '../../components/video/VideoPlayer';
 import api from '../../api/axios';
 
 const inferCategory = (video) => {
@@ -328,12 +329,11 @@ const Library = () => {
           <button className="absolute right-4 top-4 text-white hover:text-gray-300 transition-colors" onClick={() => setPlayingVideo(null)}>
             <X size={32} />
           </button>
-          <div className="w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10" onClick={e => e.stopPropagation()}>
-            <video 
+          <div className="w-full max-w-5xl bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10" onClick={e => e.stopPropagation()}>
+            <VideoPlayer 
               src={playingVideo.videoUrl} 
-              className="w-full h-full" 
-              controls 
-              autoPlay 
+              poster={playingVideo.thumbnail || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2825&auto=format&fit=crop'}
+              onVideoEnd={() => {}}
             />
           </div>
         </div>
