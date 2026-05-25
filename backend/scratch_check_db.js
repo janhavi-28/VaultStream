@@ -17,7 +17,7 @@ const checkDb = async () => {
 
     const videos = await Video.find({});
     console.log('--- ALL VIDEOS ---');
-    console.log(JSON.stringify(videos.map(v => ({ id: v._id, title: v.title, status: v.status, sensitivity: v.sensitivity, tenantId: v.tenantId, uploadedBy: v.uploadedBy, userId: v.userId })), null, 2));
+    console.log(JSON.stringify(videos, null, 2));
 
     process.exit(0);
   } catch (error) {

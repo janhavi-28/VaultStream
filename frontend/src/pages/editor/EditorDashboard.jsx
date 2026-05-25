@@ -215,6 +215,10 @@ const EditorDashboard = () => {
                 const normalizedStatus = (video.status || 'completed').toLowerCase();
                 const statusTone = STATUS_STYLES[normalizedStatus] || STATUS_STYLES.completed;
 
+                const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000';
+                const videoUrl = `${baseUrl}/api/videos/stream/${video._id}`;
+                const posterSrc = video.thumbnail || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2940&auto=format&fit=crop';
+
                 return (
                   <Link
                     to={`/viewer/watch/${video._id}`}
@@ -223,7 +227,18 @@ const EditorDashboard = () => {
                     title={`Click to play ${video.title || video.originalName}`}
                   >
                     <div className="aspect-video bg-slate-200 relative overflow-hidden flex items-center justify-center">
-                      {video.thumbnail ? (
+                      {video.status === 'completed' ? (
+                        <video
+                          src={videoUrl}
+                          poster={posterSrc}
+                          preload="metadata"
+                          muted
+                          loop
+                          className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                          onMouseEnter={(e) => e.target.play().catch(() => {})}
+                          onMouseLeave={(e) => { e.target.pause(); e.target.currentTime = 0; }}
+                        />
+                      ) : video.thumbnail ? (
                         <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover group-hover:scale-105 transition duration-300" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-slate-400 group-hover:text-indigo-600 transition bg-slate-100">

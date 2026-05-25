@@ -26,6 +26,8 @@ const formatDuration = (seconds) => {
 };
 
 const VideoRow = memo(({ video, onOpen }) => {
+  const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000';
+  const videoUrl = `${baseUrl}/api/videos/stream/${video._id}`;
   const posterSrc = video.thumbnail || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2825&auto=format&fit=crop';
 
   return (
@@ -35,13 +37,26 @@ const VideoRow = memo(({ video, onOpen }) => {
       className="group flex w-full items-center gap-4 rounded-xl border border-gray-200 bg-white p-3 text-left shadow-sm transition-all hover:border-indigo-200 hover:shadow-md"
     >
       <div className="relative h-20 w-36 overflow-hidden rounded-lg bg-gray-100 shrink-0">
-        <img
-          src={posterSrc}
-          alt={video.title}
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-cover opacity-90 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
-        />
+        {video.status === 'completed' ? (
+          <video
+            src={videoUrl}
+            poster={posterSrc}
+            preload="metadata"
+            muted
+            loop
+            className="h-full w-full object-cover opacity-90 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
+            onMouseEnter={(e) => e.target.play().catch(() => {})}
+            onMouseLeave={(e) => { e.target.pause(); e.target.currentTime = 0; }}
+          />
+        ) : (
+          <img
+            src={posterSrc}
+            alt={video.title}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover opacity-90 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
+          />
+        )}
         {video.duration && (
           <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
             {formatDuration(video.duration)}

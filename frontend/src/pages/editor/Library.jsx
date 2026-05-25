@@ -240,10 +240,11 @@ const Library = () => {
                   if (video.videoUrl) setPlayingVideo(video);
                 }}
               >
-                {video.videoUrl ? (
+                {video.status === 'completed' || video.reviewState === 'safe' ? (
                   <video 
-                    src={video.videoUrl} 
-                    className="h-full w-full object-cover" 
+                    src={video.videoUrl}
+                    poster={video.thumbnail || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2825&auto=format&fit=crop'}
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105" 
                     preload="metadata"
                     muted
                     loop
@@ -251,9 +252,9 @@ const Library = () => {
                     onMouseLeave={(e) => { e.target.pause(); e.target.currentTime = 0; }}
                   />
                 ) : video.thumbnail ? (
-                  <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover" />
+                  <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-gray-400">
+                  <div className="flex h-full items-center justify-center text-gray-400 bg-slate-100 transition duration-300 group-hover:text-indigo-600">
                     <Film size={32} />
                   </div>
                 )}
