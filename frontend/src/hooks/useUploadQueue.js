@@ -175,17 +175,25 @@ export const useUploadQueue = () => {
       })
       .then((response) => {
         controllersRef.current.delete(nextQueuedItem.id);
+        const returnedVideo = response.data?.video;
+        const isCompleted = returnedVideo?.status === 'completed';
+        
         updateQueueItem(nextQueuedItem.id, {
-          progress: 0,
+          progress: isCompleted ? 100 : 0,
           uploadedBytes: nextQueuedItem.file.size,
           speedBytesPerSecond: nextQueuedItem.file.size / Math.max((performance.now() - startTime) / 1000, 1),
           etaSeconds: 0,
-          status: 'processing',
-          remoteUrl: response.data?.video?.url || null,
-          videoId: response.data?.video?._id || null,
+          status: isCompleted ? 'completed' : 'processing',
+          sensitivity: returnedVideo?.sensitivity || 'pending',
+          remoteUrl: returnedVideo?.url || null,
+          videoId: returnedVideo?._id || null,
         });
 
-        notifySuccess('Upload successful', `${nextQueuedItem.title} was successfully uploaded and is now being analyzed.`, false);
+        if (isCompleted) {
+          notifySuccess('Analysis complete', `${nextQueuedItem.title} is ready.`, false);
+        } else {
+          notifySuccess('Upload successful', `${nextQueuedItem.title} was successfully uploaded and is now being analyzed.`, false);
+        }
       })
       .catch((error) => {
         controllersRef.current.delete(nextQueuedItem.id);

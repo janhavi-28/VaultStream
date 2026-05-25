@@ -30,11 +30,14 @@ export const processVideoAsync = async (io, userId, videoId) => {
     // Update DB status to processing
     await Video.findByIdAndUpdate(videoId, { status: 'processing' });
 
-    // 2. Simulate processing progress over 10 seconds (5 steps)
+    // 2. Simulate processing progress
+    const isServerless = !!process.env.VERCEL || !!process.env.VERCEL_URL;
     const steps = 5;
+    const delayMs = isServerless ? 50 : 2000;
+    
     for (let i = 1; i <= steps; i++) {
-      // Wait 2 seconds per step
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Wait to simulate processing
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
       
       const percent = (i / steps) * 100;
       
@@ -93,6 +96,8 @@ export const processVideoAsync = async (io, userId, videoId) => {
     });
 
     console.log(`Video processing completed for ${videoId}. Result: ${finalSensitivity}`);
+    
+    return updatedVideo;
 
   } catch (error) {
     console.error(`Error processing video ${videoId}:`, error);
@@ -103,5 +108,7 @@ export const processVideoAsync = async (io, userId, videoId) => {
     } catch (e) {
       console.error('Failed to update status to failed', e);
     }
+    
+    return null;
   }
 };

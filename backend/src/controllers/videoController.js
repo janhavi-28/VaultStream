@@ -50,14 +50,14 @@ export const uploadVideo = async (req, res, next) => {
       size: video.size,
     });
 
+    // Process video immediately (await to ensure completion on Serverless like Vercel)
+    const updatedVideo = await processVideoAsync(io, userId, video._id);
+
     res.status(201).json({
       success: true,
       message: 'Video uploaded successfully. Processing started.',
-      video,
+      video: updatedVideo || video,
     });
-
-    // Fire-and-forget: process in background
-    processVideoAsync(io, userId, video._id);
 
   } catch (error) {
     next(error);
