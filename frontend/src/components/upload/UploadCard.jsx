@@ -37,6 +37,24 @@ const UploadCard = ({ item, onTitleChange, onCancel, onRetry, onRemove }) => {
               <Video size={36} />
             </div>
           )}
+          
+          {(item.status === 'uploading' || item.status === 'processing') ? (
+            <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-yellow-100/90 px-2 py-1 text-xs font-medium text-yellow-800 backdrop-blur-sm">
+              <LoaderCircle size={12} className="animate-spin" />
+              Processing
+            </div>
+          ) : item.sensitivity === 'flagged' ? (
+            <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-rose-100/90 px-2 py-1 text-xs font-medium text-rose-700 backdrop-blur-sm">
+              <AlertTriangle size={12} />
+              Flagged
+            </div>
+          ) : item.status === 'completed' ? (
+            <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-emerald-100/90 px-2 py-1 text-xs font-medium text-emerald-700 backdrop-blur-sm">
+              <CheckCircle2 size={12} />
+              Safe
+            </div>
+          ) : null}
+
           <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-slate-950/85 to-transparent px-4 py-3 text-xs text-white">
             <span>{formatDuration(item.duration)}</span>
             <span>{formatBytes(item.file.size)}</span>
