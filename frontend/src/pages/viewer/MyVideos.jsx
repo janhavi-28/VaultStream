@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Play, CheckCircle2, AlertTriangle, Clock, VideoOff, Loader2 } from 'lucide-react';
 import api from '../../api/axios';
 
-const StatusBadge = ({ status }) => {
-  switch (status) {
+const StatusBadge = ({ reviewState }) => {
+  switch (reviewState) {
     case 'safe':
       return <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider flex items-center gap-1"><CheckCircle2 size={12} /> Safe</span>;
     case 'flagged':
       return <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider flex items-center gap-1"><AlertTriangle size={12} /> Flagged</span>;
     case 'processing':
+    case 'uploading':
       return <span className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider flex items-center gap-1"><Clock size={12} /> Processing</span>;
     default:
       return null;
@@ -68,7 +69,7 @@ const VideoRow = memo(({ video, onOpen }) => {
         {video.description && <p className="mt-0.5 text-xs text-gray-400 truncate">{video.description}</p>}
         <p className="mt-1 text-xs text-gray-500">Added {new Date(video.createdAt).toLocaleDateString()}</p>
       </div>
-      <StatusBadge status={video.status} />
+      <StatusBadge reviewState={video.reviewState} />
       <div className="rounded-full bg-indigo-100 p-2 text-indigo-700 shrink-0"><Play size={16} className="fill-current" /></div>
     </button>
   );
@@ -90,7 +91,13 @@ const MyVideos = () => {
         setLoading(true);
         setError(null);
         const { data } = await api.get('/videos');
-        setVideos(data.videos || []);
+        const normalizedVideos = (data.videos || []).map(video => ({
+          ...video,
+          reviewState: (video.status === 'processing' || video.status === 'uploading') 
+            ? 'processing' 
+            : (video.sensitivity === 'flagged' ? 'flagged' : 'safe')
+        }));
+        setVideos(normalizedVideos);
       } catch (err) {
         console.error('Failed to fetch videos:', err);
         setError('Could not load your videos. Please try again.');
@@ -104,7 +111,7 @@ const MyVideos = () => {
   const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
       const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter = activeFilter === 'All' || video.status?.toLowerCase() === activeFilter.toLowerCase();
+      const matchesFilter = activeFilter === 'All' || video.reviewState?.toLowerCase() === activeFilter.toLowerCase();
       return matchesSearch && matchesFilter;
     });
   }, [videos, activeFilter, searchTerm]);
