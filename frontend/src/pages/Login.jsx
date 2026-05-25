@@ -32,13 +32,6 @@ const Login = () => {
     try {
       const user = await login(formData);
       
-      // Prevent admins from logging in through the public portal
-      if (user.role === 'admin') {
-        logout();
-        setError('Admin accounts must use the /admin/login portal to sign in.');
-        return;
-      }
-
       // Check if there's a pending redirect from the Auth Gate
       const redirectUrl = localStorage.getItem('redirectUrl');
       if (redirectUrl) {

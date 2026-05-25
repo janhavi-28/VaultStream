@@ -39,7 +39,6 @@ const ManageTenants = lazy(() => import('./pages/admin/ManageTenants'));
 const ManageVideos = lazy(() => import('./pages/admin/ManageVideos'));
 const Moderation = lazy(() => import('./pages/admin/Moderation'));
 const SystemSettings = lazy(() => import('./pages/SystemSettings'));
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const ProcessingDashboard = lazy(() => import('./pages/admin/ProcessingDashboard'));
 const AnalyticsDashboard = lazy(() => import('./pages/admin/AnalyticsDashboard'));
 const AdminSystemSettings = lazy(() => import('./pages/admin/SystemSettings'));
@@ -52,7 +51,6 @@ const AnimatedRoutes = ({ isAuthenticated, role, getDashboardPath }) => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to={getDashboardPath()} replace />} />
-        <Route path="/admin/login" element={!isAuthenticated ? <AdminLogin /> : <Navigate to={getDashboardPath()} replace />} />
         <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to={getDashboardPath()} replace />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/browse" element={<PublicLibrary />} />
