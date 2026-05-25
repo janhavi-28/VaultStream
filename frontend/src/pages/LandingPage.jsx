@@ -250,8 +250,17 @@ const LandingPage = () => {
                       
                       {/* Lock overlay hint */}
                       <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-md flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Lock size={12} />
-                        Sign in to watch
+                        {isAuthenticated ? (
+                          <>
+                            <Play size={12} />
+                            Watch Video
+                          </>
+                        ) : (
+                          <>
+                            <Lock size={12} />
+                            Sign in to watch
+                          </>
+                        )}
                       </div>
                     </div>
                     
