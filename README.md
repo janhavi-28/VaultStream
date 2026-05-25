@@ -387,9 +387,9 @@ All seeded users have password: `password123`
 ### Demo Credentials
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@vaultstream.com | Admin123! |
-| Editor | ns1@antigravity.local | password123 |
-| Viewer | ns2@antigravity.local | password123 |
+| Admin | admin@vaultstream.com | Admin123 |
+| Editor | test1234@gmail.com | password123 |
+| Viewer | test123@gmail.com | password123 |
 
 ---
 
