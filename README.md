@@ -147,7 +147,7 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_min_32_chars
 JWT_EXPIRES_IN=7d
 ADMIN_EMAIL=admin@vaultstream.com
-ADMIN_PASSWORD=Admin123!
+ADMIN_PASSWORD=Admin123
 CLIENT_URL=http://localhost:5173
 ```
 
@@ -258,7 +258,7 @@ Frontend runs on: `http://localhost:5173`
 - Pre-seeded in database (not registerable)
 - Full system access
 - Credentials set via environment variables
-- Default: `admin@vaultstream.com` / `Admin123!`
+- Default: `admin@vaultstream.com` / `Admin123`
 
 ### Editor
 - Self-registers via register page
@@ -282,26 +282,6 @@ Acme Corp        →  sees only Acme Corp videos
 Blue Studios     →  sees only Blue Studios videos
 Admin            →  sees ALL organisations
 ```
-
-### Pre-seeded Organisations
-| Organisation | Seeded Users |
-|---|---|
-| Northstar Media | 3 users (1 editor, 2 viewers) |
-| Acme Corp | 1 user (1 editor) |
-| Blue Studios | 0 users |
-
-### Seeded User Credentials
-All seeded users have password: `password123`
-
-| Email | Role | Organisation |
-|---|---|---|
-| ns1@antigravity.local | Editor | Northstar Media |
-| ns2@antigravity.local | Viewer | Northstar Media |
-| ns3@antigravity.local | Viewer | Northstar Media |
-| acme1@antigravity.local | Editor | Acme Corp |
-
----
-
 ## Video Processing Pipeline
 
 ```
@@ -393,6 +373,4 @@ All seeded users have password: `password123`
 
 ---
 
-## License
 
-This project was built as part of a full-stack development assignment.
