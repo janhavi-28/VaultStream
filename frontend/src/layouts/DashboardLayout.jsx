@@ -96,9 +96,9 @@ const DashboardLayout = ({ navigationParams }) => {
                   <Building2 size={16} className="text-indigo-600 shrink-0" />
                   <span className="truncate text-sm font-bold text-slate-800">{currentTenant?.name || 'VaultStream'}</span>
                 </div>
-              ) : (
+              ) : role === 'editor' ? (
                 <TenantSwitcher />
-              )}
+              ) : null}
             </div>
           </div>
 
