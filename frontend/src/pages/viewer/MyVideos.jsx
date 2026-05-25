@@ -75,12 +75,9 @@ const VideoRow = memo(({ video, onOpen }) => {
   );
 });
 
-const FILTERS = ['All', 'Safe', 'Processing', 'Flagged'];
-
 const MyVideos = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -110,11 +107,9 @@ const MyVideos = () => {
 
   const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
-      const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter = activeFilter === 'All' || video.reviewState?.toLowerCase() === activeFilter.toLowerCase();
-      return matchesSearch && matchesFilter;
+      return video.title.toLowerCase().includes(searchTerm.toLowerCase());
     });
-  }, [videos, activeFilter, searchTerm]);
+  }, [videos, searchTerm]);
 
   return (
     <div className="mx-auto max-w-7xl pb-12">
@@ -136,20 +131,6 @@ const MyVideos = () => {
             />
           </div>
         </div>
-      </div>
-
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
-        {FILTERS.map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              activeFilter === filter ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
       </div>
 
       <div className="max-h-[70vh] space-y-3 overflow-y-auto p-1" role="list" aria-label="Video library results">
