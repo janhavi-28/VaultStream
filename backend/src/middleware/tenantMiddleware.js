@@ -43,8 +43,11 @@ export const buildTenantFilter = (req, extraFilters = {}) => {
     // Multi-tenant: show videos from the same organisation AND global videos
     filter.tenantId = { $in: [req.tenantId, null] };
   } else if (req.user && req.user.role === 'viewer') {
-    // Viewer role: in standalone/null-tenant mode, see all global/tenantless videos
-    filter.tenantId = null;
+    // Viewer role: allow them to see videos. If they are standalone (no tenant),
+    // we don't restrict by tenantId so they can browse the platform.
+    if (req.tenantId) {
+      filter.tenantId = { $in: [req.tenantId, null] };
+    }
   } else {
     // Single user (no tenant): only show their own uploads
     filter.uploadedBy = req.user._id;
