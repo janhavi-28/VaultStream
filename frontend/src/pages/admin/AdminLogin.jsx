@@ -92,7 +92,6 @@ const AdminLogin = () => {
                   name="email"
                   type="email"
                   required
-                  defaultValue="admin@vaultstream.com"
                   className="appearance-none block w-full px-4 py-3 border border-gray-300 bg-gray-50 text-gray-900 rounded-xl shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all sm:text-sm"
                 />
               </div>
@@ -108,7 +107,6 @@ const AdminLogin = () => {
                   name="password"
                   type="password"
                   required
-                  defaultValue="admin123"
                   className="appearance-none block w-full px-4 py-3 border border-gray-300 bg-gray-50 text-gray-900 rounded-xl shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all sm:text-sm"
                 />
               </div>
@@ -123,12 +121,6 @@ const AdminLogin = () => {
               Sign In as Admin
             </button>
           </form>
-          
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-400">
-              For demo purposes, credentials are pre-filled.
-            </p>
-          </div>
         </div>
       </div>
     </div>
