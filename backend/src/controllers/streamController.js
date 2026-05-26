@@ -2,6 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import Video from '../models/Video.js';
 
+// In-memory cache to store resolved video paths by ID.
+// This prevents redundant, slow MongoDB Atlas round-trips on every range/chunk request.
+const videoPathCache = new Map();
+
 // ─────────────────────────────────────────────
 // @desc    Stream a video using HTTP Range Requests
 // @route   GET /api/videos/stream/:id
@@ -9,20 +13,30 @@ import Video from '../models/Video.js';
 // ─────────────────────────────────────────────
 export const streamVideo = async (req, res, next) => {
   try {
-    // 1. Look up the video document in MongoDB
-    const video = await Video.findById(req.params.id);
+    const videoId = req.params.id;
+    let videoPath = videoPathCache.get(videoId);
 
-    if (!video) {
-      res.status(404);
-      return next(new Error('Video not found'));
+    if (!videoPath) {
+      // 1. Look up the video document in MongoDB (only done once per video lifetime/restart)
+      const video = await Video.findById(videoId);
+
+      if (!video) {
+        res.status(404);
+        return next(new Error('Video not found'));
+      }
+
+      // 2. Resolve the file path on disk
+      videoPath = path.resolve(video.path);
+      
+      // Cache the resolved path
+      videoPathCache.set(videoId, videoPath);
     }
-
-    // 2. Resolve the file path on disk
-    const videoPath = path.resolve(video.path);
 
     // 3. Check that the file actually exists on disk
     if (!fs.existsSync(videoPath)) {
       res.status(404);
+      // Remove stale path from cache
+      videoPathCache.delete(videoId);
       return next(new Error('Video file not found on server'));
     }
 
@@ -48,11 +62,12 @@ export const streamVideo = async (req, res, next) => {
     const parts = range.replace(/bytes=/, '').split('-');
     const start = parseInt(parts[0], 10);
 
-    // If end is not specified, stream a 1MB chunk at a time for efficiency
-    const CHUNK_SIZE = 1024 * 1024; // 1MB
+    // If end is not specified, let the browser request the remaining file (fileSize - 1)
+    // rather than throttling to a tiny 1MB chunk which triggers excessive HTTP requests.
+    // The browser's native video player will naturally throttle consumption via TCP backpressure.
     const end = parts[1]
       ? parseInt(parts[1], 10)
-      : Math.min(start + CHUNK_SIZE - 1, fileSize - 1);
+      : fileSize - 1;
 
     // 7. Validate that the range is within bounds
     if (start >= fileSize || end >= fileSize) {
@@ -89,3 +104,4 @@ export const streamVideo = async (req, res, next) => {
     next(error);
   }
 };
+
