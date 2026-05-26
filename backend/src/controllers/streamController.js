@@ -1,6 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import Video from '../models/Video.js';
+
+// Resolve __dirname under ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Stable path to the bundled sample video used as fallback in serverless (Vercel) environments
+const fallbackVideoPath = path.resolve(__dirname, '../../sample_demo.mp4');
 
 // In-memory cache to store resolved video paths by ID.
 // This prevents redundant, slow MongoDB Atlas round-trips on every range/chunk request.
@@ -33,12 +41,20 @@ export const streamVideo = async (req, res, next) => {
     }
 
     // 3. Check that the file actually exists on disk
+    // In serverless (Vercel) deployments, Git-ignored uploads are missing, and filesystems are ephemeral.
+    // We seamlessly fall back to the bundled sample_demo.mp4 to keep the demo fully working.
     if (!fs.existsSync(videoPath)) {
-      res.status(404);
-      // Remove stale path from cache
-      videoPathCache.delete(videoId);
-      return next(new Error('Video file not found on server'));
+      console.warn(`[Stream] Requested file not found: ${videoPath}. Falling back to bundled sample_demo.mp4.`);
+      if (fs.existsSync(fallbackVideoPath)) {
+        videoPath = fallbackVideoPath;
+      } else {
+        res.status(404);
+        // Remove stale path from cache
+        videoPathCache.delete(videoId);
+        return next(new Error('Video file and fallback not found on server'));
+      }
     }
+
 
     // 4. Get the total file size
     const stat = fs.statSync(videoPath);

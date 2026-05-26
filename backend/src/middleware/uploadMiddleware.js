@@ -1,12 +1,16 @@
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
+import os from 'os';
 
 // Define storage location and filename format
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Ensure the folder exists in the project root
-    cb(null, process.env.UPLOAD_PATH || './uploads');
+    // On serverless (Vercel) environments, the local file system is read-only.
+    // We must route uploads to os.tmpdir() (e.g. /tmp) which is the only writable directory.
+    const isServerless = !!process.env.VERCEL || !!process.env.VERCEL_URL;
+    const uploadPath = isServerless ? os.tmpdir() : (process.env.UPLOAD_PATH || './uploads');
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     // Extract original extension
@@ -15,6 +19,7 @@ const storage = multer.diskStorage({
     cb(null, `${uuidv4()}${ext}`);
   },
 });
+
 
 // File filter to restrict non-MP4 uploads
 const fileFilter = (req, file, cb) => {
